@@ -1,22 +1,20 @@
-import logo from './logo.svg';
+import { useRef, useState } from 'react';
+import Bugout from 'bugout';
 import './App.css';
 
 function App() {
+  const [lobbyKey, setLobbyKey] = useState('lobby');
+  const b = useRef(null);
+
+  const connectToLobby = () => {
+
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
+        <button onClick={connectToLobby}>Connect</button>
       </header>
     </div>
   );
