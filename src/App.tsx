@@ -24,8 +24,11 @@ interface Message {
 
 function App() {
   const [lobbyKey, setLobbyKey] = useState('lobby');
+  const [nickname, setNickname] = useState('Jone');
   const [myAddress, setMyAddress] = useState('');
   const [message, setMessage] = useState('');
+  const [connected, setConnected] = useState(false);
+
   const b = useRef<Bugout | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
   const player = useRef<Entity>({
@@ -35,6 +38,14 @@ function App() {
   });
   const myAddressRef = useRef<string>(myAddress);
   const players = useRef<Map<string, Entity>>(new Map<string, Entity>());
+  const addressToNickname = useRef<Map<string, string>>(new Map<string, string>());
+
+  const leaveLobby = () => {
+    if (b.current) {
+      b.current.close();
+    }
+    setConnected(false);
+  }
 
   const connectToLobby = () => {
     if (b.current) {
@@ -45,15 +56,17 @@ function App() {
       seed: JSON.parse(localStorage.getItem("bugout-seed") || '""'),
     });
     console.log('Connecting to', lobbyKey);
+    setConnected(true);
     setMessages([]);
     if (b.current) {
       const addr = b.current.address();
       setMyAddress(addr);
       myAddressRef.current = addr;
+      
       b.current.on("message", function(address, { type, message }) {
         switch (type) {
           case 'chat':
-            setMessages((messages) => [...messages, { body: message, sender: address }]);
+            setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
             break;
           case 'player_state':
             if (players.current.has(address)) {
@@ -65,10 +78,17 @@ function App() {
             message.time = Date.now();
             players.current.set(address, message);
             break;
+          case 'announce':
+            addressToNickname.current.set(address, message);
+            setMessages((messages) => [...messages, { body: "Connected!", sender: addressToNickname.current.get(address)! }]);
+            break;
         }
       })
       b.current.on("seen", function(address) {
-        setMessages((messages) => [...messages, { body: "Connected!", sender: address }]);
+        console.log(address, 'connected');
+        if (b.current) {
+          b.current.send({ type: 'announce', message: nickname });
+        }
       });
       localStorage["bugout-seed"] = JSON.stringify(b.current.seed);
     }
@@ -82,7 +102,6 @@ function App() {
   }
 
   useEffect(() => {
-    console.log('useffect')
     const id = setInterval(() => {
       if (b.current) {
         b.current.send({ type: 'player_state', message: player.current });
@@ -98,19 +117,34 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
+      {!connected && <div className="join-form col">
+        <label>
+          Nickname
+          <input onChange={(e) => setNickname(e.target.value)} value={nickname}></input>
+        </label>
+        <label>
+          Lobby Name
+          <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
+        </label>
         <button onClick={connectToLobby}>Join</button>
-        <span>{myAddress}</span>
-      </header>
-      <div>
-        {messages.map((message, index) => <div key={index}><b>{message.sender}:</b> {message.body}</div>)}
+      </div>}
+      <button hidden={!connected} onClick={leaveLobby}>Leave</button>
+
+      <div className="row">
+        {connected && <GameCanvas myAddress={myAddressRef} player={player} players={players}></GameCanvas>}
+        {connected &&(
+          <div className="chat col flex-end">
+            <div>
+              {messages.map((message, index) => <div key={index}><b>{message.sender}:</b> {message.body}</div>)}
+            </div>
+            <form onSubmit={(e) => e.preventDefault()}>
+                <input onSubmit={sendMessage} onChange={(e) => setMessage(e.target.value)} value={message}></input>
+              <button onClick={sendMessage}>Send</button>
+            </form>
+          </div>
+        )}
+
       </div>
-      <div>
-        <input onChange={(e) => setMessage(e.target.value)} value={message}></input>
-        <button onClick={sendMessage}>Send</button>
-      </div>
-      <GameCanvas myAddress={myAddressRef} player={player} players={players}></GameCanvas>
     </div>
   );
 }

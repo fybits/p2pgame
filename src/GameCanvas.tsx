@@ -23,7 +23,7 @@ const GameCanvas = ({ myAddress, player, players }: GameCanvasProps) => {
   }
 
   const dt = 1000/30;
-  const speed = 10;
+  const speed = 20;
 
   const handleInput = () => {
     const d: Vector = {x: 0, y: 0};
@@ -41,9 +41,9 @@ const GameCanvas = ({ myAddress, player, players }: GameCanvasProps) => {
 
 
   useEffect( () => {
-    console.log('game effect')
 
     if (canvas.current) {
+      canvas.current.focus();
       setInterval(() => {
         if (canvas.current) {
           const ctx = canvas.current.getContext("2d")!;
@@ -62,13 +62,8 @@ const GameCanvas = ({ myAddress, player, players }: GameCanvasProps) => {
             for (const [addr, entity] of players.current.entries()) {
               if (addr !== myAddress.current) {
                 const t = (time - entity?.time!) / (entity?.time! - (entity?.oldTime || 0));
-                console.log(t)
-                // entity.position.x += entity.velocity.x * dt / 1000;
-                // entity.position.y += entity.velocity.y * dt / 1000;
                 const x = lerp(entity.oldPosition?.x || 0, entity.position.x, t);
                 const y = lerp(entity.oldPosition?.y || 0, entity.position.y, t);
-                // const x = entity.position.x;
-                // const y = entity.position.y;
                 ctx.fillRect(x, y, 10, 10);
               }
             }
@@ -79,7 +74,7 @@ const GameCanvas = ({ myAddress, player, players }: GameCanvasProps) => {
   }, [])
 
   return (
-    <canvas tabIndex={1} onKeyDown={keyDown} onKeyUp={keyUp}  width={800} height={600} ref={canvas}>
+    <canvas tabIndex={1} autoFocus onKeyDown={keyDown} onKeyUp={keyUp}  width={800} height={600} ref={canvas}>
 
     </canvas>
   )
