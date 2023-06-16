@@ -1,4 +1,3 @@
-import { string } from "yargs";
 
 export interface Vector {
     x: number;

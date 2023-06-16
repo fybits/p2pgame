@@ -28,7 +28,13 @@ code {
 
 .chat {
   padding-left: 8px;
+  height: 600px;
+}
+
+.chat>div {
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .col {

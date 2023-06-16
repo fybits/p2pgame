@@ -34,7 +34,7 @@ function App() {
   const player = useRef<Entity>({
     address: '',
     velocity: { x: 0, y: 0 },
-    position: { x: 0, y: 0 },
+    position: { x: 400, y: 300 },
   });
   const myAddressRef = useRef<string>(myAddress);
   const players = useRef<Map<string, Entity>>(new Map<string, Entity>());
@@ -95,7 +95,7 @@ function App() {
   };
 
   const sendMessage = () => {
-    if (b.current) {
+    if (b.current && message.trim().length > 0) {
       b.current.send({ type: 'chat', message });
       setMessage('');
     }
@@ -135,7 +135,7 @@ function App() {
         {connected &&(
           <div className="chat col flex-end">
             <div>
-              {messages.map((message, index) => <div key={index}><b>{message.sender}:</b> {message.body}</div>)}
+              {messages.map((message, index) => <div key={index}><b>{message.sender}:</b> {message.body}</div>).reverse()}
             </div>
             <form onSubmit={(e) => e.preventDefault()}>
                 <input onSubmit={sendMessage} onChange={(e) => setMessage(e.target.value)} value={message}></input>
