@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/p2pgame/static/css/main.455ec044.css",
+    "main.css": "/p2pgame/static/css/main.91aa74bc.css",
     "main.js": "/p2pgame/static/js/main.ffa1140b.js",
     "static/js/787.e87d3b9e.chunk.js": "/p2pgame/static/js/787.e87d3b9e.chunk.js",
     "index.html": "/p2pgame/index.html",
-    "main.455ec044.css.map": "/p2pgame/static/css/main.455ec044.css.map",
+    "main.91aa74bc.css.map": "/p2pgame/static/css/main.91aa74bc.css.map",
     "main.ffa1140b.js.map": "/p2pgame/static/js/main.ffa1140b.js.map",
     "787.e87d3b9e.chunk.js.map": "/p2pgame/static/js/787.e87d3b9e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.455ec044.css",
+    "static/css/main.91aa74bc.css",
     "static/js/main.ffa1140b.js"
   ]
 }
