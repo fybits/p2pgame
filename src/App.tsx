@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Bugout from 'bugout';
 import './App.css';
+import GameCanvas from './GameCanvas.tsx';
+import { Entity, Vector } from './types';
 
 const trackers = [
   'ws://tracker.files.fm:7072',
@@ -19,12 +21,20 @@ interface Message {
   sender: string,
 }
 
+
 function App() {
   const [lobbyKey, setLobbyKey] = useState('lobby');
   const [myAddress, setMyAddress] = useState('');
   const [message, setMessage] = useState('');
   const b = useRef<Bugout | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
+  const player = useRef<Entity>({
+    address: '',
+    velocity: { x: 0, y: 0 },
+    position: { x: 0, y: 0 },
+  });
+  const myAddressRef = useRef<string>(myAddress);
+  const players = useRef<Map<string, Entity>>(new Map<string, Entity>());
 
   const connectToLobby = () => {
     if (b.current) {
@@ -37,9 +47,25 @@ function App() {
     console.log('Connecting to', lobbyKey);
     setMessages([]);
     if (b.current) {
-      setMyAddress(b.current.address());
-      b.current.on("message", function(address, message) {
-        setMessages((messages) => [...messages, { body: message, sender: address }]);
+      const addr = b.current.address();
+      setMyAddress(addr);
+      myAddressRef.current = addr;
+      b.current.on("message", function(address, { type, message }) {
+        switch (type) {
+          case 'chat':
+            setMessages((messages) => [...messages, { body: message, sender: address }]);
+            break;
+          case 'player_state':
+            if (players.current.has(address)) {
+              const p = players.current.get(address);
+              message.oldPosition = p?.position;
+              message.oldTime = p?.time;
+              message.address = address;
+            }
+            message.time = Date.now();
+            players.current.set(address, message);
+            break;
+        }
       })
       b.current.on("seen", function(address) {
         setMessages((messages) => [...messages, { body: "Connected!", sender: address }]);
@@ -50,16 +76,23 @@ function App() {
 
   const sendMessage = () => {
     if (b.current) {
-      b.current.send(message);
+      b.current.send({ type: 'chat', message });
       setMessage('');
     }
   }
 
   useEffect(() => {
+    console.log('useffect')
+    const id = setInterval(() => {
+      if (b.current) {
+        b.current.send({ type: 'player_state', message: player.current });
+      }
+    }, 1000/10);
     return () => {
       if (b.current) {
         b.current.close();
       }
+      clearInterval(id);
     }
   }, [])
 
@@ -77,6 +110,7 @@ function App() {
         <input onChange={(e) => setMessage(e.target.value)} value={message}></input>
         <button onClick={sendMessage}>Send</button>
       </div>
+      <GameCanvas myAddress={myAddressRef} player={player} players={players}></GameCanvas>
     </div>
   );
 }
