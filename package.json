@@ -5,6 +5,7 @@
   "homepage": "https://fybits.github.io/p2pgame",
   "dependencies": {
     "@babel/core": "^7.16.0",
+    "@pixi/react": "^7.1.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
@@ -38,6 +39,7 @@
     "mini-css-extract-plugin": "^2.4.5",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "path-browserify": "^1.0.1",
+    "pixi.js": "^7.2.4",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",

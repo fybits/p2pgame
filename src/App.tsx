@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Bugout from 'bugout';
 import './App.css';
-import GameCanvas from './GameCanvas.tsx';
-import { Entity, Vector } from './types';
+import GameCanvas from './GameCanvas';
+import { useGameStateContext } from './GameState';
+import { updateOtherPlayerAction } from './GameStateActions';
 
 const trackers = [
   'ws://tracker.files.fm:7072',
@@ -29,28 +30,23 @@ function App() {
   const [message, setMessage] = useState('');
   const [connected, setConnected] = useState(false);
 
+  const {state, dispatch} = useGameStateContext();
+
   const b = useRef<Bugout | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
-  const player = useRef<Entity>({
-    address: '',
-    velocity: { x: 0, y: 0 },
-    position: { x: 400, y: 300 },
-  });
+
   const myAddressRef = useRef<string>(myAddress);
-  const players = useRef<Map<string, Entity>>(new Map<string, Entity>());
   const addressToNickname = useRef<Map<string, string>>(new Map<string, string>());
 
   const leaveLobby = () => {
     if (b.current) {
-      b.current.close();
+      // b.current.close();
+      b.current.destroy((...rest) => console.log(rest))
     }
     setConnected(false);
   }
 
   const connectToLobby = () => {
-    if (b.current) {
-      b.current.close();
-    }
     b.current = new Bugout(lobbyKey,{
       announce: trackers,
       seed: JSON.parse(localStorage.getItem("bugout-seed") || '""'),
@@ -69,14 +65,14 @@ function App() {
             setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
             break;
           case 'player_state':
-            if (players.current.has(address)) {
-              const p = players.current.get(address);
+            if (state.otherPlayers.has(address)) {
+              const p = state.otherPlayers.get(address);
               message.oldPosition = p?.position;
               message.oldTime = p?.time;
               message.address = address;
             }
             message.time = Date.now();
-            players.current.set(address, message);
+            dispatch(updateOtherPlayerAction(address, message));
             break;
           case 'announce':
             addressToNickname.current.set(address, message);
@@ -104,7 +100,7 @@ function App() {
   useEffect(() => {
     const id = setInterval(() => {
       if (b.current) {
-        b.current.send({ type: 'player_state', message: player.current });
+        b.current.send({ type: 'player_state', message: state.player });
       }
     }, 1000/10);
     return () => {
@@ -117,21 +113,27 @@ function App() {
 
   return (
     <div className="App">
-      {!connected && <div className="join-form col">
-        <label>
-          Nickname
-          <input onChange={(e) => setNickname(e.target.value)} value={nickname}></input>
-        </label>
-        <label>
-          Lobby Name
-          <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
-        </label>
-        <button onClick={connectToLobby}>Join</button>
-      </div>}
-      <button hidden={!connected} onClick={leaveLobby}>Leave</button>
+      {!connected ? (
+        <div className="join-form col">
+          <label>
+            Nickname
+            <input onChange={(e) => setNickname(e.target.value)} value={nickname}></input>
+          </label>
+          <label>
+            Lobby Name
+            <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
+          </label>
+          <button disabled={nickname.trim().length === 0 || lobbyKey.length === 0} onClick={connectToLobby}>Join</button>
+        </div>
+      ) : 
+        <div className="row">
+          <div>{lobbyKey}</div>
+          <button onClick={leaveLobby}>Leave</button>
+        </div>
+      }
 
       <div className="row">
-        {connected && <GameCanvas myAddress={myAddressRef} player={player} players={players}></GameCanvas>}
+        {connected && <GameCanvas myAddress={myAddressRef}></GameCanvas>}
         {connected &&(
           <div className="chat col flex-end">
             <div>

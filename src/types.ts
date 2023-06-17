@@ -12,3 +12,5 @@ export interface Entity {
     time?: number;
     oldTime?: number;
 }
+
+export type Address = string;
