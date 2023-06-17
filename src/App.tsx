@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import Bugout from 'bugout';
 import './App.css';
 import GameCanvas from './GameCanvas';
-import { useGameStateContext } from './GameState';
+import { GameStateContext } from './GameState';
 import { updateOtherPlayerAction } from './GameStateActions';
 
 const trackers = [
@@ -30,7 +30,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [connected, setConnected] = useState(false);
 
-  const {state, dispatch} = useGameStateContext();
+  const {state, dispatch} = useContext(GameStateContext);
 
   const b = useRef<Bugout | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -65,8 +65,8 @@ function App() {
             setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
             break;
           case 'player_state':
-            if (state.otherPlayers.has(address)) {
-              const p = state.otherPlayers.get(address);
+            if (state.otherPlayers[address]) {
+              const p = state.otherPlayers[address];
               message.oldPosition = p?.position;
               message.oldTime = p?.time;
               message.address = address;
@@ -98,16 +98,10 @@ function App() {
   }
 
   useEffect(() => {
-    const id = setInterval(() => {
-      if (b.current) {
-        b.current.send({ type: 'player_state', message: state.player });
-      }
-    }, 1000/10);
     return () => {
       if (b.current) {
         b.current.close();
       }
-      clearInterval(id);
     }
   }, [])
 
@@ -133,7 +127,7 @@ function App() {
       }
 
       <div className="row">
-        {connected && <GameCanvas myAddress={myAddressRef}></GameCanvas>}
+        {connected && <GameCanvas bugout={b} myAddress={myAddressRef}></GameCanvas>}
         {connected &&(
           <div className="chat col flex-end">
             <div>
