@@ -26,29 +26,38 @@ const Player = ({ bugout, keyboard, player, dispatch }) => {
       if (bugout.current) {
         bugout.current.send({ type: 'player_state', message: player });
       }
-    } 
-    dispatch(updatePlayerVelocity({
-      x: player.velocity.x * 0.95 + speed * d.x,
-      y: player.velocity.y * 0.95 + speed * d.y,
-    }));
+    }
+    const rotation = (player.rotation + d.x * dt * 2) % 360;
+    // dispatch(updatePlayerVelocity({
+    //   x: player.velocity.x * 0.95 + speed * d.y * Math.cos(Math.PI/180*rotation),
+    //   y: player.velocity.y * 0.95 + speed * d.y * Math.sin(Math.PI/180*rotation),
+    // }));
     const newPos = {
       x: player.position.x + player.velocity.x * dt / 1000,
       y: player.position.y + player.velocity.y * dt / 1000,
     };
     dispatch({
       type: ActionKind.UpdatePlayer,
-      payload: { position: newPos }
+      payload: {
+        position: newPos,
+        velocity: {
+          x: player.velocity.x * 0.99 + speed * d.y * Math.cos(Math.PI/180*rotation),
+          y: player.velocity.y * 0.99 + speed * d.y * Math.sin(Math.PI/180*rotation),
+        },
+        rotation: rotation,
+      }
     });
   });
 
   return (
     <Sprite
-      image="/p2pgame/logo192.png"
+      image="/p2pgame/spaceship_sprite.png"
       anchor={0.5}
-      width={20}
-      height={20}
+      width={48}
+      height={48}
       x={player.position.x}
       y={player.position.y}
+      angle={player.rotation - 90}
     />
   );
 };

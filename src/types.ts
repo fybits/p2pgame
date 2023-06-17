@@ -8,6 +8,7 @@ export interface Entity {
     address: string;
     velocity: Vector;
     position: Vector;
+    rotation: number;
     oldPosition?: Vector;
     time?: number;
     oldTime?: number;

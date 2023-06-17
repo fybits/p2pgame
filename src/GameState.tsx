@@ -9,6 +9,7 @@ export type State = {
 
 const initialState: State = {
   player: {
+    rotation: 0,
     address: '',
     position: { x: 400, y: 300 },
     velocity: { x: 0, y: 0 },

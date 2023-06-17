@@ -19,13 +19,14 @@ const Entity = ({ player }) => {
 
   return (
     <Sprite
-      image="/p2pgame/logo192.png"
+      image="/p2pgame/spaceship_sprite.png"
       tint={0xff0000}
       anchor={0.5}
-      width={20}
-      height={20}
+      width={48}
+      height={48}
       x={interpolatedPos.x}
       y={interpolatedPos.y}
+      angle={player.rotation - 90}
     />
   );
 };

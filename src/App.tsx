@@ -126,7 +126,7 @@ function App() {
         </div>
       }
 
-      <div className="row">
+      <div className="row game-window">
         {connected && <GameCanvas bugout={b} myAddress={myAddressRef}></GameCanvas>}
         {connected &&(
           <div className="chat col flex-end">
