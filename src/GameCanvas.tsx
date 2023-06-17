@@ -36,7 +36,8 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
   const playersList = Object.values(state.otherPlayers);
 
   let deziredZoom = 1;
-  
+  let desiredPos = { x: 0, y: 0 };
+
   if (playersList.length > 1) {
     const minX = playersList.reduce((min, cur) => cur.position.x < min ? cur.position.x : min, 9999999)
     const maxX = playersList.reduce((max, cur) => cur.position.x > max ? cur.position.x : max, -9999999)
@@ -46,12 +47,11 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
     const deziredZoomX = WIDTH * 0.75 / (maxX - minX);
     const deziredZoomY = HEIGHT * 0.75 / (maxY - minY);
     deziredZoom = Math.min(1, deziredZoomX, deziredZoomY);
+
+    const averageX = playersList.reduce((acc, cur) => cur.position.x + acc, 0) / playersList.length;
+    const averageY = playersList.reduce((acc, cur) => cur.position.y + acc, 0) / playersList.length;
+    desiredPos = { x: (WIDTH/2-averageX*deziredZoom), y: (HEIGHT/2-averageY*deziredZoom) };
   }
-
-  const averageX = playersList.reduce((acc, cur) => cur.position.x + acc, 0) / playersList.length;
-  const averageY = playersList.reduce((acc, cur) => cur.position.y + acc, 0) / playersList.length;
-
-  const desiredPos = { x: (WIDTH/2-averageX*deziredZoom), y: (HEIGHT/2-averageY*deziredZoom) };
 
   return (
     <Stage onPointerMove={mouseMove}  tabIndex={1} autoFocus onKeyDown={keyDown} onKeyUp={keyUp} width={WIDTH} height={HEIGHT}>
