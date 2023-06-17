@@ -9,6 +9,7 @@ export interface Entity {
     velocity: Vector;
     position: Vector;
     rotation: number;
+    oldRotation?: number;
     oldPosition?: Vector;
     time?: number;
     oldTime?: number;

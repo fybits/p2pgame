@@ -68,6 +68,7 @@ function App() {
             if (state.otherPlayers[address]) {
               const p = state.otherPlayers[address];
               message.oldPosition = p?.position;
+              message.oldRotation = p?.rotation;
               message.oldTime = p?.time;
               message.address = address;
             }

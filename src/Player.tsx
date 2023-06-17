@@ -28,10 +28,6 @@ const Player = ({ bugout, keyboard, player, dispatch }) => {
       }
     }
     const rotation = (player.rotation + d.x * dt * 2) % 360;
-    // dispatch(updatePlayerVelocity({
-    //   x: player.velocity.x * 0.95 + speed * d.y * Math.cos(Math.PI/180*rotation),
-    //   y: player.velocity.y * 0.95 + speed * d.y * Math.sin(Math.PI/180*rotation),
-    // }));
     const newPos = {
       x: player.position.x + player.velocity.x * dt / 1000,
       y: player.position.y + player.velocity.y * dt / 1000,

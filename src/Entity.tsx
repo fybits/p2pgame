@@ -8,13 +8,16 @@ function lerp(start, end, t) {
 
 const Entity = ({ player }) => {
   const [interpolatedPos, setInterpolatedPos] = useState<Vector>(player.position);
+  const [interpolatedRotation, setInterpolatedRotation] = useState<number>(player.rotation);
 
   useTick(dt => {
     const time = Date.now();
     const t = (time - player?.time!) / (player?.time! - (player?.oldTime || 0));
     const x = lerp(player.oldPosition?.x || 0, player.position.x, t);
     const y = lerp(player.oldPosition?.y || 0, player.position.y, t);
+    const angle = lerp(player.oldRotation || 0, player.rotation, t);
     setInterpolatedPos({ x, y });
+    setInterpolatedRotation(angle)
   });
 
   return (
@@ -26,7 +29,7 @@ const Entity = ({ player }) => {
       height={48}
       x={interpolatedPos.x}
       y={interpolatedPos.y}
-      angle={player.rotation - 90}
+      angle={interpolatedRotation - 90}
     />
   );
 };
