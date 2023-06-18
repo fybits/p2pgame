@@ -6,7 +6,7 @@ function lerp(start, end, t) {
   return start * (1 - t) + end * t;
 }
 
-const Entity = ({ player }) => {
+const EntityObject = ({ player }) => {
   const [interpolatedPos, setInterpolatedPos] = useState<Vector>(player.position);
   const [interpolatedRotation, setInterpolatedRotation] = useState<number>(player.rotation);
 
@@ -34,4 +34,4 @@ const Entity = ({ player }) => {
   );
 };
 
-export default Entity
+export default EntityObject

@@ -3,6 +3,8 @@ import { Address, Entity, Vector } from "./types"
 export enum ActionKind {
   UpdateOtherPlayer = 'UpdateOtherPlayer',
   UpdatePlayer = 'UpdatePlayer',
+  ShootBullet = 'ShootBullet',
+  UpdateBullet = 'UpdateBullet',
 }
 
 export type Action = {

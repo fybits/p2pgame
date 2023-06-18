@@ -5,6 +5,7 @@ import { Action, ActionKind } from './GameStateActions';
 export type State = {
   player: Entity;
   otherPlayers: {[key: Address]: Entity};
+  bullets: Entity[];
 }
 
 const initialState: State = {
@@ -15,6 +16,7 @@ const initialState: State = {
     velocity: { x: 0, y: 0 },
   },
   otherPlayers: {},
+  bullets: [],
 }
 
 const reducer: React.Reducer<State, Action> = (state, { type, payload }) => {
@@ -25,6 +27,16 @@ const reducer: React.Reducer<State, Action> = (state, { type, payload }) => {
       const { address, player } = payload;
       state.otherPlayers[address] = player;
       return {...state, otherPlayers: state.otherPlayers};
+    case ActionKind.ShootBullet:
+      if (state.bullets.length > 40) {
+        state.bullets.shift()
+      }
+      return {...state, bullets: [ ...state.bullets, payload]};
+    case ActionKind.UpdateBullet:
+      const bullets = state.bullets;
+      const index = bullets.findIndex(b => b.address === payload.address);
+      bullets[index] = { ...bullets[index], position: payload.position };
+      return {...state, bullets };
   }
   return state;
 };

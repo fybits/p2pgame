@@ -58,3 +58,16 @@ label>input {
 .game-window {
   margin-left: 10%;
 }
+
+
+kbd {
+  border-bottom: 0.3rem solid #808080;
+  border-left: 0.3rem solid #adadad;
+  border-right: 0.3rem solid #6e6e6e;
+  background-color: #999999;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  padding-top: 0.1rem;
+  font-weight: bold;
+  margin: 0 0.3rem;
+}

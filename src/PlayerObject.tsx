@@ -5,7 +5,7 @@ import { ActionKind, updatePlayerVelocity } from './GameStateActions';
 const speed = 150;
 let i = 0;
 
-const Player = ({ bugout, keyboard, player, dispatch }) => {
+const PlayerObject = ({ bugout, keyboard, player, dispatch }) => {
   const handleInput = () => {
     const d: Vector = {x: 0, y: 0};
     if (keyboard.current['w'])
@@ -58,4 +58,4 @@ const Player = ({ bugout, keyboard, player, dispatch }) => {
   );
 };
 
-export default Player
+export default PlayerObject

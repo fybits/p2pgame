@@ -3,7 +3,7 @@ import Bugout from 'bugout';
 import './App.css';
 import GameCanvas from './GameCanvas';
 import { GameStateContext } from './GameState';
-import { updateOtherPlayerAction } from './GameStateActions';
+import { ActionKind, updateOtherPlayerAction } from './GameStateActions';
 
 const trackers = [
   'ws://tracker.files.fm:7072',
@@ -25,7 +25,7 @@ interface Message {
 
 function App() {
   const [lobbyKey, setLobbyKey] = useState('lobby');
-  const [nickname, setNickname] = useState('Jone');
+  const [nickname, setNickname] = useState(localStorage.getItem('nickname') || 'Jone');
   const [myAddress, setMyAddress] = useState('');
   const [message, setMessage] = useState('');
   const [connected, setConnected] = useState(false);
@@ -40,7 +40,6 @@ function App() {
 
   const leaveLobby = () => {
     if (b.current) {
-      // b.current.close();
       b.current.destroy((...rest) => console.log(rest))
     }
     setConnected(false);
@@ -49,7 +48,7 @@ function App() {
   const connectToLobby = () => {
     b.current = new Bugout(lobbyKey,{
       announce: trackers,
-      seed: JSON.parse(localStorage.getItem("bugout-seed") || '""'),
+      seed: localStorage.getItem("bugout-seed") || null,
     });
     console.log('Connecting to', lobbyKey);
     setConnected(true);
@@ -72,8 +71,15 @@ function App() {
               message.oldTime = p?.time;
               message.address = address;
             }
+            message.address = address;
             message.time = Date.now();
             dispatch(updateOtherPlayerAction(address, message));
+            break;
+          case 'bullet_shot':
+            dispatch({
+              type: ActionKind.ShootBullet,
+              payload: message,
+            });
             break;
           case 'announce':
             addressToNickname.current.set(address, message);
@@ -87,7 +93,8 @@ function App() {
           b.current.send({ type: 'announce', message: nickname });
         }
       });
-      localStorage["bugout-seed"] = JSON.stringify(b.current.seed);
+      localStorage["bugout-seed"] = b.current.seed;
+      localStorage["nickname"] = nickname;
     }
   };
 
@@ -128,7 +135,11 @@ function App() {
       }
 
       <div className="row game-window">
-        {connected && <GameCanvas bugout={b} myAddress={myAddressRef}></GameCanvas>}
+        {connected && <div>
+            <GameCanvas bugout={b} myAddress={myAddressRef}></GameCanvas>
+            <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera</div>
+          </div>
+        }
         {connected &&(
           <div className="chat col flex-end">
             <div>
@@ -140,7 +151,6 @@ function App() {
             </form>
           </div>
         )}
-
       </div>
     </div>
   );
