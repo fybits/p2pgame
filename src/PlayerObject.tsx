@@ -1,6 +1,6 @@
 import { Sprite, useTick } from '@pixi/react';
-import { Vector } from './types';
-import { ActionKind, updatePlayerVelocity } from './GameStateActions';
+import { ActionKind } from './GameStateActions';
+import { Vector } from './vector';
 
 const speed = 150;
 let i = 0;

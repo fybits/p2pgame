@@ -1,6 +1,6 @@
 import { Sprite, useTick } from '@pixi/react';
-import { Vector } from './types';
 import { useState } from 'react';
+import { Vector } from './vector';
 
 function lerp(start, end, t) {
   return start * (1 - t) + end * t;
@@ -10,14 +10,14 @@ const EntityObject = ({ player }) => {
   const [interpolatedPos, setInterpolatedPos] = useState<Vector>(player.position);
   const [interpolatedRotation, setInterpolatedRotation] = useState<number>(player.rotation);
 
-  useTick(dt => {
+  useTick((dt) => {
     const time = Date.now();
     const t = (time - player?.time!) / (player?.time! - (player?.oldTime || 0));
     const x = lerp(player.oldPosition?.x || 0, player.position.x, t);
     const y = lerp(player.oldPosition?.y || 0, player.position.y, t);
     const angle = lerp(player.oldRotation || 0, player.rotation, t);
     setInterpolatedPos({ x, y });
-    setInterpolatedRotation(angle)
+    setInterpolatedRotation(angle);
   });
 
   return (
@@ -34,4 +34,4 @@ const EntityObject = ({ player }) => {
   );
 };
 
-export default EntityObject
+export default EntityObject;

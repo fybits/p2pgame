@@ -1,8 +1,4 @@
-
-export interface Vector {
-    x: number;
-    y: number;
-}
+import { Vector } from "./vector";
 
 export interface Entity {
     address: string;

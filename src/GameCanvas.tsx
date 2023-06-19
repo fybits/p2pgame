@@ -1,32 +1,28 @@
-import { KeyboardEvent, MouseEventHandler, useCallback, useContext, useEffect, useRef, useState } from "react"
-import { Container, Graphics, Stage } from '@pixi/react';
+import { KeyboardEvent, useCallback, useContext, useRef, useState } from "react"
+import { Graphics } from '@pixi/react';
 import PlayerObject from "./PlayerObject";
 import { GameStateContext } from "./GameState";
 import EntityObject from "./EntityObject";
 import Bugout from 'bugout';
-import { Entity, Vector } from "./types";
 import ZoomableContainer from "./ZoomableContainer";
 import BulletObject from "./BulletObject";
+import { Stage } from "./Stage";
+import { Vector, vectorLength } from "./vector";
 
 interface GameCanvasProps {
   bugout: React.MutableRefObject<Bugout>
   myAddress: React.MutableRefObject<string>;
 }
 
-const vectorLength = (vector: Vector): number => {
-  return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
-}
-
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-let counter = 0;
 
 const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
   const { state, dispatch } = useContext(GameStateContext);
   const [cameraMode, setCameraMode] = useState(true);
   const keyboard = useRef<Map<string,number>>(new Map<string,number>());
-  const mousePosition = useRef<Vector>();
+  const mouse = useRef<{ position: Vector, pressed: boolean }>({ position: { x: 0, y: 0 }, pressed: false });
 
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
     keyboard.current[event.key] = 1;
@@ -42,19 +38,18 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
 
   const mouseMove = (event) => {
     var rect = event.target.getBoundingClientRect();
-    mousePosition.current =  { x: event.clientX - rect.left, y: event.clientY - rect.top};
+    mouse.current.position = { x: event.clientX - rect.left, y: event.clientY - rect.top};
   }
 
-  const mouseClick = (event) => {
-    if (bugout.current) {
-      const bullet: Entity = {
-        address: `${myAddress.current}_${counter++}`,
-        position: state.player.position,
-        rotation: state.player.rotation,
-        velocity: { x: -Math.cos(Math.PI/180*state.player.rotation)*25000, y: -Math.sin(Math.PI/180*state.player.rotation)*25000 },
-      };
-      bugout.current.send({ type: 'bullet_shot', message: bullet });
+  const mouseDown = (event) => {
+    if (event.button === 0) {
+      mouse.current.pressed = true;
+    }
+  }
 
+  const mouseUp = (event) => {
+    if (event.button === 0) {
+      mouse.current.pressed = false;
     }
   }
 
@@ -100,19 +95,20 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
     }
     g.endFill();
   }, []);
-  
+
   return (
     <Stage
       style={{userSelect: "none", outline: "none"}}
       onMouseMove={mouseMove}
-      onMouseDown={mouseClick}
+      onMouseDown={mouseDown}
+      onMouseUp={mouseUp}
       tabIndex={1}
       autoFocus
       onKeyDown={keyDown}
       onKeyUp={keyUp}
       width={WIDTH} height={HEIGHT}
     >
-      <ZoomableContainer anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
+      <ZoomableContainer mouse={mouse} myAddress={myAddress} bugout={bugout} anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
         <Graphics draw={draw} />
         <PlayerObject bugout={bugout} keyboard={keyboard} player={state.player} dispatch={dispatch}></PlayerObject>
         {Object.values(state.otherPlayers).filter((p) => p.address !== myAddress.current).map((player) => (

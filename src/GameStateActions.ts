@@ -1,4 +1,5 @@
-import { Address, Entity, Vector } from "./types"
+import { Address, Entity } from "./types"
+import { Vector } from "./vector"
 
 export enum ActionKind {
   UpdateOtherPlayer = 'UpdateOtherPlayer',
