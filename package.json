@@ -150,7 +150,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "buffer": "^6.0.3",
     "gh-pages": "^5.0.0"
   }
