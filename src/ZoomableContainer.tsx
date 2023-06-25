@@ -52,6 +52,7 @@ const ZoomableContainer = ({
         position: bulletPos,
         rotation: Math.atan2(dirClamped.y, dirClamped.x)*180/Math.PI,
         velocity: { x: dirClamped.x*25000, y: dirClamped.y*25000 },
+        deleted: false,
       };
       bugout.current.send({ type: 'bullet_shot', message: bullet });
     }

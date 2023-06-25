@@ -1,11 +1,22 @@
 import { Sprite, useTick } from '@pixi/react';
-import { ActionKind } from './GameStateActions';
-import { Vector } from './vector';
+import Bugout from 'bugout';
+import { Action, ActionKind } from './GameStateActions';
+import { Vector, distance } from './vector';
+import { Entity } from './types';
+import { initialState } from './GameState';
 
 const speed = 150;
 let i = 0;
 
-const PlayerObject = ({ bugout, keyboard, player, dispatch }) => {
+interface PlayerObjectProps {
+  bugout: React.MutableRefObject<Bugout>;
+  keyboard: React.MutableRefObject<Map<string,number>>;
+  player: Entity;
+  bullets: Entity[];
+  dispatch: React.Dispatch<Action>;
+}
+
+const PlayerObject = ({ bugout, keyboard, player, bullets, dispatch }: PlayerObjectProps) => {
   const handleInput = () => {
     const d: Vector = {x: 0, y: 0};
     if (keyboard.current['w'])
@@ -43,6 +54,26 @@ const PlayerObject = ({ bugout, keyboard, player, dispatch }) => {
         rotation: rotation,
       }
     });
+    for (const b of bullets) {
+      if (!b.address.startsWith(player.address) && !b.deleted){
+        if (distance(player.position, b.position) < 40) {
+          bugout.current.send({ type: 'bullet_collided', message: b });
+          const newPlayer: Entity = { ...player }
+          newPlayer.health -= 5;
+          if (newPlayer.health < 0) {
+            newPlayer.position = {...initialState.player.position};
+            newPlayer.velocity = {...initialState.player.velocity};
+            newPlayer.health = initialState.player.health;
+            newPlayer.rotation = initialState.player.rotation;
+            bugout.current.send({ type: 'kill', message: { killer: b.address.split('_')[0], target: player.address } });
+          }
+          dispatch({ 
+            type: ActionKind.UpdatePlayer,
+            payload: newPlayer,
+          });
+        }
+      }
+    }
   });
 
   return (

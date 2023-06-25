@@ -9,6 +9,8 @@ export interface Entity {
     oldPosition?: Vector;
     time?: number;
     oldTime?: number;
+    deleted?: boolean;
+    health?: number;
 }
 
 export type Address = string;

@@ -1,5 +1,5 @@
 import { KeyboardEvent, useCallback, useContext, useRef, useState } from "react"
-import { Graphics } from '@pixi/react';
+import { Text, Graphics, _ReactPixi } from '@pixi/react';
 import PlayerObject from "./PlayerObject";
 import { GameStateContext } from "./GameState";
 import EntityObject from "./EntityObject";
@@ -12,13 +12,14 @@ import { Vector, vectorLength } from "./vector";
 interface GameCanvasProps {
   bugout: React.MutableRefObject<Bugout>
   myAddress: React.MutableRefObject<string>;
+  addressToNickname: React.MutableRefObject<Map<string, string>>;
 }
 
 const WIDTH = 1280;
 const HEIGHT = 720;
 
 
-const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
+const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) => {
   const { state, dispatch } = useContext(GameStateContext);
   const [cameraMode, setCameraMode] = useState(true);
   const keyboard = useRef<Map<string,number>>(new Map<string,number>());
@@ -95,7 +96,7 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
     }
     g.endFill();
   }, []);
-
+  // const textStyles: _ReactPixi.IText { fill: 'white' }
   return (
     <Stage
       style={{userSelect: "none", outline: "none"}}
@@ -110,7 +111,7 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
     >
       <ZoomableContainer mouse={mouse} myAddress={myAddress} bugout={bugout} anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
         <Graphics draw={draw} />
-        <PlayerObject bugout={bugout} keyboard={keyboard} player={state.player} dispatch={dispatch}></PlayerObject>
+        <PlayerObject bullets={state.bullets} bugout={bugout} keyboard={keyboard} player={state.player} dispatch={dispatch}></PlayerObject>
         {Object.values(state.otherPlayers).filter((p) => p.address !== myAddress.current).map((player) => (
           <EntityObject key={player.address} player={player}></EntityObject>
         ))}
@@ -118,6 +119,9 @@ const GameCanvas = ({ bugout, myAddress }: GameCanvasProps) => {
           <BulletObject key={bullet.address} dispatch={dispatch} bullet={bullet}></BulletObject>
         ))}
       </ZoomableContainer>
+        <Text x={10} text={Object.entries(state.scoreBoard).map(([addr, val]) => (
+          `${addressToNickname.current.get(addr)}: ${val}`
+        )).join('\n')} style={{ fill: 'white' }}></Text>
     </Stage>
   )
 }

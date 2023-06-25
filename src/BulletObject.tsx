@@ -1,8 +1,14 @@
 import { Sprite, useTick } from '@pixi/react';
-import { ActionKind } from './GameStateActions';
+import { Action, ActionKind } from './GameStateActions';
+import { Entity } from './types';
 
 
-const BulletObject = ({ bullet, dispatch }) => {
+interface BulletObjectProps {
+  bullet: Entity;
+  dispatch: React.Dispatch<Action>;
+};
+
+const BulletObject = ({ bullet, dispatch }: BulletObjectProps) => {
   useTick(dt => {
     const newPos = {
       x: bullet.position.x + bullet.velocity.x * dt / 1000,
@@ -16,17 +22,19 @@ const BulletObject = ({ bullet, dispatch }) => {
       }
     });
   });
-  return (
-    <Sprite
-      image="/p2pgame/long-ray.png"
-      anchor={0.5}
-      width={8}
-      height={64}
-      x={bullet.position.x}
-      y={bullet.position.y}
-      angle={bullet.rotation - 90}
-    />
-  );
+  if (!bullet.deleted) {
+    return (
+      <Sprite
+        image="/p2pgame/long-ray.png"
+        anchor={0.5}
+        width={8}
+        height={64}
+        x={bullet.position.x}
+        y={bullet.position.y}
+        angle={bullet.rotation - 90}
+      />
+    );
+  } else return null;
 };
 
 export default BulletObject

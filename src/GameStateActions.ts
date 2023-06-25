@@ -6,6 +6,7 @@ export enum ActionKind {
   UpdatePlayer = 'UpdatePlayer',
   ShootBullet = 'ShootBullet',
   UpdateBullet = 'UpdateBullet',
+  UpdateScoreBoard = 'UpdateScoreBoard',
 }
 
 export type Action = {

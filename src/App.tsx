@@ -57,7 +57,10 @@ function App() {
       const addr = b.current.address();
       setMyAddress(addr);
       myAddressRef.current = addr;
-      
+      dispatch({
+        type: ActionKind.UpdatePlayer,
+        payload: { address: addr },
+      })
       b.current.on("message", function(address, { type, message }) {
         switch (type) {
           case 'chat':
@@ -80,6 +83,19 @@ function App() {
               type: ActionKind.ShootBullet,
               payload: message,
             });
+            break;
+          case 'bullet_collided':
+            dispatch({
+              type: ActionKind.UpdateBullet,
+              payload: { address: message.address, deleted: true },
+            })
+            break;
+          case 'kill':
+            setMessages((messages) => [...messages, { body: `killed ${addressToNickname.current.get(message.target)}`, sender: addressToNickname.current.get(message.killer)! }]);
+            dispatch({
+              type: ActionKind.UpdateScoreBoard,
+              payload: { killer: message.killer }
+            })
             break;
           case 'announce':
             addressToNickname.current.set(address, message);
@@ -136,7 +152,7 @@ function App() {
 
       <div className="row game-window">
         {connected && <div>
-            <GameCanvas bugout={b} myAddress={myAddressRef}></GameCanvas>
+            <GameCanvas bugout={b} myAddress={myAddressRef} addressToNickname={addressToNickname}></GameCanvas>
             <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera</div>
           </div>
         }
