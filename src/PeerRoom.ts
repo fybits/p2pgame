@@ -13,40 +13,47 @@ export class PeerRoom {
 
   constructor(private userId: string) {
     this.peer = new Peer(userId);
-    this.peer.on('connection', (member) => this.addDataConnectionEventHandlers(member))
+    console.log(this.peer.id)
+    this.peer.on('open', (member) => {
+      this.peer.on('connection', this.addDataConnectionEventHandlers)
+      console.log(member)})
   }
 
   private addDataConnectionEventHandlers(dc: DataConnection) {
+    console.log('add data connection')
+    // dc.on('error', (e) => console.log(e))
     dc.on('open', () => {
       console.log('open')
       this.members.push(dc);
       dc.send({ type: 'members-list', data: this.members.map((m) => m.peer) });
       this.listeners.forEach((l) => l(dc.peer, { type: 'announce', message: dc.peer }));
+      dc.on('close', () => {
+        console.log('close')
+        this.members = this.members.filter((m) => m !== dc);
+      });
+  
+      dc.on('data', (data: DataEventData) => {
+        console.log('data')
+        if (data.type === 'members-list') {
+          data.message.forEach((peer) => {
+            if (this.members.some(m => m.peer === peer)) {
+              return
+            };
+  
+            this.addDataConnectionEventHandlers(dc);
+            this.members.push(this.peer.connect(peer));
+          })
+        }
+      })
     })
 
-    dc.on('close', () => {
-      console.log('close')
-      this.members = this.members.filter((m) => m !== dc);
-    });
-
-    dc.on('data', (data: DataEventData) => {
-      console.log('data')
-      if (data.type === 'members-list') {
-        data.message.forEach((peer) => {
-          if (this.members.some(m => m.peer === peer)) {
-            return
-          };
-
-          this.addDataConnectionEventHandlers(dc);
-          this.members.push(this.peer.connect(peer));
-        })
-      }
-    })
   }
 
   connectToExisting(userId: string)  {
     console.log('connectToExisting')
-    this.peer.connect(userId);
+    const connection = this.peer.connect(userId);
+    console.log(connection);
+    // this.addDataConnectionEventHandlers(connection)
   }
 
   destroy() {
@@ -64,7 +71,8 @@ export class PeerRoom {
   }
 
   send(...arg: any) {
-    console.log('send')
+    // console.log('send')
+    // console.log(this.peer)
     this.members.forEach(m => m.send(arg))
   }
 }
