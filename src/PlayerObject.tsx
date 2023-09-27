@@ -4,12 +4,13 @@ import { Action, ActionKind } from './GameStateActions';
 import { Vector, distance } from './vector';
 import { Entity } from './types';
 import { initialState } from './GameState';
+import { PeerRoom } from './PeerRoom';
 
 const speed = 150;
 let i = 0;
 
 interface PlayerObjectProps {
-  bugout: React.MutableRefObject<Bugout>;
+  bugout: React.MutableRefObject<PeerRoom>;
   keyboard: React.MutableRefObject<Map<string,number>>;
   player: Entity;
   bullets: Entity[];
@@ -27,7 +28,7 @@ const PlayerObject = ({ bugout, keyboard, player, bullets, dispatch }: PlayerObj
       d.y += 1;
     if (keyboard.current['d'])
       d.x += 1;
-    return d; 
+    return d;
   }
 
   useTick(dt => {
@@ -67,7 +68,7 @@ const PlayerObject = ({ bugout, keyboard, player, bullets, dispatch }: PlayerObj
             newPlayer.rotation = initialState.player.rotation;
             bugout.current.send({ type: 'kill', message: { killer: b.address.split('_')[0], target: player.address } });
           }
-          dispatch({ 
+          dispatch({
             type: ActionKind.UpdatePlayer,
             payload: newPlayer,
           });

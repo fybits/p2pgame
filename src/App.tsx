@@ -4,6 +4,7 @@ import './App.css';
 import GameCanvas from './GameCanvas';
 import { GameStateContext } from './GameState';
 import { ActionKind, updateOtherPlayerAction } from './GameStateActions';
+import { PeerRoom } from './PeerRoom';
 
 const trackers = [
   'ws://tracker.files.fm:7072',
@@ -32,7 +33,7 @@ function App() {
 
   const {state, dispatch} = useContext(GameStateContext);
 
-  const b = useRef<Bugout | undefined>();
+  const b = useRef<PeerRoom | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
 
   const myAddressRef = useRef<string>(myAddress);
@@ -40,78 +41,74 @@ function App() {
 
   const leaveLobby = () => {
     if (b.current) {
-      b.current.destroy((...rest) => console.log(rest))
+      b.current.destroy()
+      b.current = undefined;
     }
     setConnected(false);
   }
 
   const connectToLobby = () => {
-    b.current = new Bugout(lobbyKey,{
-      announce: trackers,
-      seed: localStorage.getItem("bugout-seed") || null,
-    });
-    console.log('Connecting to', lobbyKey);
+    b.current = new PeerRoom(nickname);
+
+    if (!nickname.startsWith('init')) {
+      console.log(nickname, 'Connecting to', lobbyKey);
+      b.current.connectToExisting(lobbyKey);
+    }
+
     setConnected(true);
     setMessages([]);
-    if (b.current) {
-      const addr = b.current.address();
-      setMyAddress(addr);
-      myAddressRef.current = addr;
-      dispatch({
-        type: ActionKind.UpdatePlayer,
-        payload: { address: addr },
-      })
-      b.current.on("message", function(address, { type, message }) {
-        switch (type) {
-          case 'chat':
-            setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
-            break;
-          case 'player_state':
-            if (state.otherPlayers[address]) {
-              const p = state.otherPlayers[address];
-              message.oldPosition = p?.position;
-              message.oldRotation = p?.rotation;
-              message.oldTime = p?.time;
-              message.address = address;
-            }
+
+    const addr = b.current.address();
+    setMyAddress(addr);
+    myAddressRef.current = addr;
+    dispatch({
+      type: ActionKind.UpdatePlayer,
+      payload: { address: addr },
+    })
+    b.current.on("message", (address, { type, message }) => {
+      switch (type) {
+        case 'chat':
+          setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
+          break;
+        case 'player_state':
+          if (state.otherPlayers[address]) {
+            const p = state.otherPlayers[address];
+            message.oldPosition = p?.position;
+            message.oldRotation = p?.rotation;
+            message.oldTime = p?.time;
             message.address = address;
-            message.time = Date.now();
-            dispatch(updateOtherPlayerAction(address, message));
-            break;
-          case 'bullet_shot':
-            dispatch({
-              type: ActionKind.ShootBullet,
-              payload: message,
-            });
-            break;
-          case 'bullet_collided':
-            dispatch({
-              type: ActionKind.UpdateBullet,
-              payload: { address: message.address, deleted: true },
-            })
-            break;
-          case 'kill':
-            setMessages((messages) => [...messages, { body: `killed ${addressToNickname.current.get(message.target)}`, sender: addressToNickname.current.get(message.killer)! }]);
-            dispatch({
-              type: ActionKind.UpdateScoreBoard,
-              payload: { killer: message.killer }
-            })
-            break;
-          case 'announce':
-            addressToNickname.current.set(address, message);
-            setMessages((messages) => [...messages, { body: "Connected!", sender: addressToNickname.current.get(address)! }]);
-            break;
-        }
-      })
-      b.current.on("seen", function(address) {
-        console.log(address, 'connected');
-        if (b.current) {
-          b.current.send({ type: 'announce', message: nickname });
-        }
-      });
-      localStorage["bugout-seed"] = b.current.seed;
-      localStorage["nickname"] = nickname;
-    }
+          }
+          message.address = address;
+          message.time = Date.now();
+          dispatch(updateOtherPlayerAction(address, message));
+          break;
+        case 'bullet_shot':
+          dispatch({
+            type: ActionKind.ShootBullet,
+            payload: message,
+          });
+          break;
+        case 'bullet_collided':
+          dispatch({
+            type: ActionKind.UpdateBullet,
+            payload: { address: message.address, deleted: true },
+          })
+          break;
+        case 'kill':
+          setMessages((messages) => [...messages, { body: `killed ${addressToNickname.current.get(message.target)}`, sender: addressToNickname.current.get(message.killer)! }]);
+          dispatch({
+            type: ActionKind.UpdateScoreBoard,
+            payload: { killer: message.killer }
+          })
+          break;
+        case 'announce':
+          addressToNickname.current.set(address, message);
+          setMessages((messages) => [...messages, { body: "Connected!", sender: addressToNickname.current.get(address)! }]);
+          break;
+      }
+    });
+
+    localStorage["nickname"] = nickname;
   };
 
   const sendMessage = () => {
@@ -124,7 +121,7 @@ function App() {
   useEffect(() => {
     return () => {
       if (b.current) {
-        b.current.close();
+        b.current.destroy();
       }
     }
   }, [])
@@ -143,7 +140,7 @@ function App() {
           </label>
           <button disabled={nickname.trim().length === 0 || lobbyKey.length === 0} onClick={connectToLobby}>Join</button>
         </div>
-      ) : 
+      ) :
         <div className="row">
           <div>{lobbyKey}</div>
           <button onClick={leaveLobby}>Leave</button>

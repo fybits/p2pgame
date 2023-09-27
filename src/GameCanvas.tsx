@@ -3,14 +3,14 @@ import { Text, Graphics, _ReactPixi } from '@pixi/react';
 import PlayerObject from "./PlayerObject";
 import { GameStateContext } from "./GameState";
 import EntityObject from "./EntityObject";
-import Bugout from 'bugout';
 import ZoomableContainer from "./ZoomableContainer";
 import BulletObject from "./BulletObject";
 import { Stage } from "./Stage";
 import { Vector, vectorLength } from "./vector";
+import { PeerRoom } from './PeerRoom';
 
 interface GameCanvasProps {
-  bugout: React.MutableRefObject<Bugout>
+  bugout: React.MutableRefObject<PeerRoom>
   myAddress: React.MutableRefObject<string>;
   addressToNickname: React.MutableRefObject<Map<string, string>>;
 }
@@ -75,7 +75,7 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
   }
 
   const f = 8500;
-  
+
   if (cameraMode) {
     deziredZoom = Math.min(0.8, f/vectorLength(state.player.velocity));
     const cameraOffset = { x: state.player.position.x + state.player.velocity.x / 20, y: state.player.position.y + state.player.velocity.y / 20 };
@@ -121,7 +121,7 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
       </ZoomableContainer>
         <Text x={10} text={Object.entries(state.scoreBoard).map(([addr, val]) => (
           `${addressToNickname.current.get(addr)}: ${val}`
-        )).join('\n')} style={{ fill: 'white' }}></Text>
+        )).join('\n')} style={{ fill: 'white' } as any}></Text>
     </Stage>
   )
 }
