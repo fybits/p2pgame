@@ -8,13 +8,13 @@ import { ActionKind, updateOtherPlayerAction } from './GameStateActions';
 const trackers = [
   'ws://tracker.files.fm:7072',
   'wss://tracker.files.fm:7073',
-  'ws://tracker.btsync.cf:233',
-  'ws://tracker.btsync.cf:2710',
-  'ws://tracker.btsync.cf:6969',
-  'ws://hub.bugout.link',
-  'wss://hub.bugout.link',
-  'ws://tracker.lab.vvc.niif.hu',
-  'wss://tracker.lab.vvc.niif.hu',
+  // 'ws://tracker.btsync.cf:233',
+  // 'ws://tracker.btsync.cf:2710',
+  // 'ws://tracker.btsync.cf:6969',
+  // 'ws://hub.bugout.link',
+  // 'wss://hub.bugout.link',
+  // 'ws://tracker.lab.vvc.niif.hu',
+  // 'wss://tracker.lab.vvc.niif.hu',
 ]
 
 interface Message {
