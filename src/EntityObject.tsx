@@ -36,8 +36,8 @@ const EntityObject = ({ player }) => {
         image={'/p2pgame/long-ray.png'}
         width={player.health}
         height={12}
-        x={player.position.x - 50}
-        y={player.position.y - 64}
+        x={interpolatedPos.x - 50}
+        y={interpolatedPos.y - 64}
         tilePosition={{ x: 0, y: 0 }}
         tileScale={{ x: 0.15, y: 0.1 }}
         tint={'00FF00'}
