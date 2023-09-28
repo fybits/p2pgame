@@ -1,5 +1,6 @@
 import { Stage as PixiStage } from '@pixi/react';
 import { GameStateContext } from './GameState';
+import React from 'react';
 
 // the context bridge:
 const ContextBridge = ({ children, Context, render }) => {
@@ -14,13 +15,13 @@ const ContextBridge = ({ children, Context, render }) => {
 
 // your Stage:
 
-export const Stage = ({ children, ...props }) => {
+export const Stage = React.forwardRef(({ children, ...props }: any, ref) => {
   return (
     <ContextBridge
       Context={GameStateContext}
-      render={(children) => <PixiStage {...props}>{children}</PixiStage>}
+      render={(children) => <PixiStage {...props} ref={ref}>{children}</PixiStage>}
     >
       {children}
     </ContextBridge>
   );
-};
+});

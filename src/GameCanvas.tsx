@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useContext, useRef, useState } from "react"
+import { KeyboardEvent, useCallback, useContext, useMemo, useRef, useState } from "react"
 import { Text, Graphics, _ReactPixi } from '@pixi/react';
 import PlayerObject from "./PlayerObject";
 import { GameStateContext } from "./GameState";
@@ -14,15 +14,18 @@ interface GameCanvasProps {
   myAddress: React.MutableRefObject<string>;
 }
 
-const WIDTH = 1280;
-const HEIGHT = 720;
-
+const WINDOW_WIDTH = 1280;
+const WINDOW_HEIGHT = 720;
 
 const GameCanvas = ({ peerRoom, myAddress }: GameCanvasProps) => {
   const { state, dispatch } = useContext(GameStateContext);
   const [cameraMode, setCameraMode] = useState(true);
   const keyboard = useRef<Map<string, number>>(new Map<string, number>());
   const mouse = useRef<{ position: Vector, pressed: boolean }>({ position: { x: 0, y: 0 }, pressed: false });
+  
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const stageRef = useRef(null);
 
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
     keyboard.current[event.key] = 1;
@@ -34,6 +37,15 @@ const GameCanvas = ({ peerRoom, myAddress }: GameCanvasProps) => {
 
   const keyUp = (event: KeyboardEvent<HTMLCanvasElement>) => {
     keyboard.current[event.key] = 0;
+    if (event.key === 'f' && stageRef.current) {
+      if (!fullscreen) {
+        setFullscreen(true)
+        stageRef.current._canvas.requestFullscreen();
+      } else {
+        setFullscreen(false)
+        document.exitFullscreen();
+      }
+    }
   }
 
   const mouseMove = (event) => {
@@ -57,6 +69,9 @@ const GameCanvas = ({ peerRoom, myAddress }: GameCanvasProps) => {
 
   let deziredZoom = 1;
   let desiredPos = { x: 0, y: 0 };
+
+  const WIDTH = useMemo(() => !fullscreen ? WINDOW_WIDTH : window.outerWidth, [fullscreen]);
+  const HEIGHT = useMemo(() => !fullscreen ? WINDOW_HEIGHT : window.outerHeight, [fullscreen]);
 
   if (playersList.length > 1) {
     const minX = playersList.reduce((min, cur) => cur.position.x < min ? cur.position.x : min, 9999999)
@@ -106,7 +121,9 @@ const GameCanvas = ({ peerRoom, myAddress }: GameCanvasProps) => {
       autoFocus
       onKeyDown={keyDown}
       onKeyUp={keyUp}
-      width={WIDTH} height={HEIGHT}
+      width={WIDTH}
+      height={HEIGHT}
+      ref={stageRef}
     >
       <ZoomableContainer mouse={mouse} myAddress={myAddress} peerRoom={peerRoom} anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
         <Graphics draw={draw} />
