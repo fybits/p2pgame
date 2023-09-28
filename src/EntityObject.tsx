@@ -1,4 +1,4 @@
-import { Sprite, useTick } from '@pixi/react';
+import { Sprite, TilingSprite, useTick } from '@pixi/react';
 import { useState } from 'react';
 import { Vector } from './vector';
 
@@ -21,16 +21,38 @@ const EntityObject = ({ player }) => {
   });
 
   return (
-    <Sprite
-      image="/p2pgame/spaceship_sprite.png"
-      tint={0xff0000}
-      anchor={0.5}
-      width={48}
-      height={48}
-      x={interpolatedPos.x}
-      y={interpolatedPos.y}
-      angle={interpolatedRotation - 90}
-    />
+    <>
+      <TilingSprite
+        image={'/p2pgame/long-ray.png'}
+        width={100}
+        height={5}
+        x={player.position.x - 50}
+        y={player.position.y - 60}
+        tilePosition={{ x: 0, y: 0 }}
+        tileScale={{ x: 0.15, y: 0.1 }}
+        tint={'FF0000'}
+      />
+      <TilingSprite
+        image={'/p2pgame/long-ray.png'}
+        width={player.health}
+        height={12}
+        x={player.position.x - 50}
+        y={player.position.y - 64}
+        tilePosition={{ x: 0, y: 0 }}
+        tileScale={{ x: 0.15, y: 0.1 }}
+        tint={'00FF00'}
+      />
+      <Sprite
+        image="/p2pgame/spaceship_sprite.png"
+        tint={0xff0000}
+        anchor={0.5}
+        width={48}
+        height={48}
+        x={interpolatedPos.x}
+        y={interpolatedPos.y}
+        angle={interpolatedRotation - 90}
+      />
+    </>
   );
 };
 

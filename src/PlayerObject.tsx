@@ -1,5 +1,4 @@
-import { Sprite, useTick } from '@pixi/react';
-import Bugout from 'bugout';
+import { Sprite, useTick, TilingSprite } from '@pixi/react';
 import { Action, ActionKind } from './GameStateActions';
 import { Vector, distance } from './vector';
 import { Entity } from './types';
@@ -77,7 +76,27 @@ const PlayerObject = ({ bugout, keyboard, player, bullets, dispatch }: PlayerObj
     }
   });
 
-  return (
+  return (<>
+    <TilingSprite
+      image={'/p2pgame/long-ray.png'}
+      width={100}
+      height={5}
+      x={player.position.x - 50}
+      y={player.position.y - 60}
+      tilePosition={{ x: 0, y: 0 }}
+      tileScale={{ x: 0.15, y: 0.1 }}
+      tint={'FF0000'}
+    />
+    <TilingSprite
+      image={'/p2pgame/long-ray.png'}
+      width={player.health}
+      height={12}
+      x={player.position.x - 50}
+      y={player.position.y - 64}
+      tilePosition={{ x: 0, y: 0 }}
+      tileScale={{ x: 0.15, y: 0.1 }}
+      tint={'00FF00'}
+    />
     <Sprite
       image="/p2pgame/spaceship_sprite.png"
       anchor={0.5}
@@ -87,6 +106,7 @@ const PlayerObject = ({ bugout, keyboard, player, bullets, dispatch }: PlayerObj
       y={player.position.y}
       angle={player.rotation - 90}
     />
+  </>
   );
 };
 
