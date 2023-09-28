@@ -33,7 +33,7 @@ const reducer: React.Reducer<State, Action> = (state, { type, payload }) => {
       return {...state, otherPlayers: state.otherPlayers};
     }
     case ActionKind.ShootBullet:
-      if (state.bullets.length > 40) {
+      if (state.bullets.length > 500) {
         state.bullets.shift()
       }
       return {...state, bullets: [ ...state.bullets, payload]};
@@ -63,7 +63,7 @@ const GameStateProvider = ({ children }) => {
 
   return (
     <GameStateContext.Provider value={{state, dispatch}}>
-        {children}
+      {children}
     </GameStateContext.Provider>
   )
 }

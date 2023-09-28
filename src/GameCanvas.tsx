@@ -12,14 +12,13 @@ import { PeerRoom } from './PeerRoom';
 interface GameCanvasProps {
   peerRoom: React.MutableRefObject<PeerRoom>
   myAddress: React.MutableRefObject<string>;
-  addressToNickname: React.MutableRefObject<Map<string, string>>;
 }
 
 const WIDTH = 1280;
 const HEIGHT = 720;
 
 
-const GameCanvas = ({ peerRoom, myAddress, addressToNickname }: GameCanvasProps) => {
+const GameCanvas = ({ peerRoom, myAddress }: GameCanvasProps) => {
   const { state, dispatch } = useContext(GameStateContext);
   const [cameraMode, setCameraMode] = useState(true);
   const keyboard = useRef<Map<string, number>>(new Map<string, number>());
@@ -120,7 +119,7 @@ const GameCanvas = ({ peerRoom, myAddress, addressToNickname }: GameCanvasProps)
         ))}
       </ZoomableContainer>
       <Text x={10} text={Object.entries(state.scoreBoard).map(([addr, val]) => (
-        `${addressToNickname.current.get(addr)}: ${val}`
+        `${addr}: ${val}`
       )).join('\n')} style={{ fill: 'white' } as any}></Text>
     </Stage>
   )

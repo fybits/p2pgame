@@ -24,7 +24,6 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const myAddressRef = useRef<string>(myAddress);
-  const addressToNickname = useRef<Map<string, string>>(new Map<string, string>());
 
   const leaveLobby = () => {
     if (peerRoom.current) {
@@ -54,7 +53,7 @@ function App() {
     peerRoom.current.on("message", (address, { type, message }) => {
       switch (type) {
         case 'chat':
-          setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
+          setMessages((messages) => [...messages, { body: message, sender: address }]);
           break;
         case 'player_state':
           if (state.otherPlayers[address]) {
@@ -81,15 +80,14 @@ function App() {
           })
           break;
         case 'kill':
-          setMessages((messages) => [...messages, { body: `killed ${addressToNickname.current.get(message.target)}`, sender: addressToNickname.current.get(message.killer)! }]);
+          setMessages((messages) => [...messages, { body: `killed ${message.target}`, sender: message.killer }]);
           dispatch({
             type: ActionKind.UpdateScoreBoard,
             payload: { killer: message.killer }
           })
           break;
         case 'announce':
-          addressToNickname.current.set(address, message);
-          setMessages((messages) => [...messages, { body: "Connected!", sender: addressToNickname.current.get(address)! }]);
+          setMessages((messages) => [...messages, { body: "Connected!", sender: address }]);
           break;
       }
     });
@@ -140,7 +138,7 @@ function App() {
 
       <div className="row game-window">
         {connected && <div>
-            <GameCanvas peerRoom={peerRoom} myAddress={myAddressRef} addressToNickname={addressToNickname}></GameCanvas>
+            <GameCanvas peerRoom={peerRoom} myAddress={myAddressRef}/>
             <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera</div>
           </div>
         }
