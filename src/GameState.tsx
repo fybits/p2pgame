@@ -33,7 +33,7 @@ const reducer: React.Reducer<State, Action> = (state, { type, payload }) => {
       return {...state, otherPlayers: state.otherPlayers};
     }
     case ActionKind.ShootBullet:
-      if (state.bullets.length > 500) {
+      if (state.bullets.length > 50) {
         state.bullets.shift()
       }
       return {...state, bullets: [ ...state.bullets, payload]};
