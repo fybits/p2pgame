@@ -16,7 +16,7 @@ const sortedClamp = (num, a, b) => {
 };
 
 const ZoomableContainer = ({
-  mouse, myAddress, defaultZoom, desiredZoom, desiredPos, children, bugout, ...props
+  mouse, myAddress, defaultZoom, desiredZoom, desiredPos, children, peerRoom, ...props
 }) => {
   const [currentZoom, setCurrentZoom] = useState(defaultZoom);
   const [currentPos, setCurrentPos] = useState({x: 0, y: 0 });
@@ -30,7 +30,7 @@ const ZoomableContainer = ({
     setCurrentPos({ x: currentPos.x + dPos.x * dt / 15, y: currentPos.y + dPos.y * dt / 15 });
 
     time -= dt;
-    if (bugout.current && mouse.current.pressed && time < 0) {
+    if (peerRoom.current && mouse.current.pressed && time < 0) {
       time = fireRate;
       const angleRads = Math.PI/180*state.player.rotation;
       const angleRange = Math.PI/12;
@@ -54,7 +54,7 @@ const ZoomableContainer = ({
         velocity: { x: dirClamped.x*25000, y: dirClamped.y*25000 },
         deleted: false,
       };
-      bugout.current.send({ type: 'bullet_shot', message: bullet });
+      peerRoom.current.send({ type: 'bullet_shot', message: bullet });
     }
   });
   

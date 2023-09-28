@@ -10,7 +10,7 @@ import { Vector, vectorLength } from "./vector";
 import { PeerRoom } from './PeerRoom';
 
 interface GameCanvasProps {
-  bugout: React.MutableRefObject<PeerRoom>
+  peerRoom: React.MutableRefObject<PeerRoom>
   myAddress: React.MutableRefObject<string>;
   addressToNickname: React.MutableRefObject<Map<string, string>>;
 }
@@ -19,10 +19,10 @@ const WIDTH = 1280;
 const HEIGHT = 720;
 
 
-const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) => {
+const GameCanvas = ({ peerRoom, myAddress, addressToNickname }: GameCanvasProps) => {
   const { state, dispatch } = useContext(GameStateContext);
   const [cameraMode, setCameraMode] = useState(true);
-  const keyboard = useRef<Map<string,number>>(new Map<string,number>());
+  const keyboard = useRef<Map<string, number>>(new Map<string, number>());
   const mouse = useRef<{ position: Vector, pressed: boolean }>({ position: { x: 0, y: 0 }, pressed: false });
 
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
@@ -39,7 +39,7 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
 
   const mouseMove = (event) => {
     var rect = event.target.getBoundingClientRect();
-    mouse.current.position = { x: event.clientX - rect.left, y: event.clientY - rect.top};
+    mouse.current.position = { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
   const mouseDown = (event) => {
@@ -71,15 +71,15 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
 
     const averageX = playersList.reduce((acc, cur) => cur.position.x + acc, 0) / playersList.length;
     const averageY = playersList.reduce((acc, cur) => cur.position.y + acc, 0) / playersList.length;
-    desiredPos = { x: (WIDTH/2-averageX*deziredZoom), y: (HEIGHT/2-averageY*deziredZoom) };
+    desiredPos = { x: (WIDTH / 2 - averageX * deziredZoom), y: (HEIGHT / 2 - averageY * deziredZoom) };
   }
 
   const f = 8500;
 
   if (cameraMode) {
-    deziredZoom = Math.min(0.8, f/vectorLength(state.player.velocity));
+    deziredZoom = Math.min(0.8, f / vectorLength(state.player.velocity));
     const cameraOffset = { x: state.player.position.x + state.player.velocity.x / 20, y: state.player.position.y + state.player.velocity.y / 20 };
-    desiredPos = { x: (WIDTH/2-cameraOffset.x*deziredZoom), y: (HEIGHT/2-cameraOffset.y*deziredZoom) };
+    desiredPos = { x: (WIDTH / 2 - cameraOffset.x * deziredZoom), y: (HEIGHT / 2 - cameraOffset.y * deziredZoom) };
   }
 
   const draw = useCallback((g) => {
@@ -91,7 +91,7 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
         const spread = 100;
         g.beginFill(colors[Math.floor(colorRand * colorRand * colors.length)], Math.random() * 0.4 + 0.2);
         const sizeRand = Math.random();
-        g.drawCircle(i*spread + Math.random() * 100 - 50, j*spread + Math.random() * 100 - 50, sizeRand*sizeRand*sizeRand * 3);
+        g.drawCircle(i * spread + Math.random() * 100 - 50, j * spread + Math.random() * 100 - 50, sizeRand * sizeRand * sizeRand * 3);
       }
     }
     g.endFill();
@@ -99,7 +99,7 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
   // const textStyles: _ReactPixi.IText { fill: 'white' }
   return (
     <Stage
-      style={{userSelect: "none", outline: "none"}}
+      style={{ userSelect: "none", outline: "none" }}
       onMouseMove={mouseMove}
       onMouseDown={mouseDown}
       onMouseUp={mouseUp}
@@ -109,9 +109,9 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
       onKeyUp={keyUp}
       width={WIDTH} height={HEIGHT}
     >
-      <ZoomableContainer mouse={mouse} myAddress={myAddress} bugout={bugout} anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
+      <ZoomableContainer mouse={mouse} myAddress={myAddress} peerRoom={peerRoom} anchor={0.5} desiredPos={desiredPos} defaultZoom={1} desiredZoom={deziredZoom}>
         <Graphics draw={draw} />
-        <PlayerObject bullets={state.bullets} bugout={bugout} keyboard={keyboard} player={state.player} dispatch={dispatch}></PlayerObject>
+        <PlayerObject bullets={state.bullets} peerRoom={peerRoom} keyboard={keyboard} player={state.player} dispatch={dispatch}></PlayerObject>
         {Object.values(state.otherPlayers).filter((p) => p.address !== myAddress.current).map((player) => (
           <EntityObject key={player.address} player={player}></EntityObject>
         ))}
@@ -119,9 +119,9 @@ const GameCanvas = ({ bugout, myAddress, addressToNickname }: GameCanvasProps) =
           <BulletObject key={bullet.address} dispatch={dispatch} bullet={bullet}></BulletObject>
         ))}
       </ZoomableContainer>
-        <Text x={10} text={Object.entries(state.scoreBoard).map(([addr, val]) => (
-          `${addressToNickname.current.get(addr)}: ${val}`
-        )).join('\n')} style={{ fill: 'white' } as any}></Text>
+      <Text x={10} text={Object.entries(state.scoreBoard).map(([addr, val]) => (
+        `${addressToNickname.current.get(addr)}: ${val}`
+      )).join('\n')} style={{ fill: 'white' } as any}></Text>
     </Stage>
   )
 }

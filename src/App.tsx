@@ -1,22 +1,9 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import Bugout from 'bugout';
 import './App.css';
 import GameCanvas from './GameCanvas';
 import { GameStateContext } from './GameState';
 import { ActionKind, updateOtherPlayerAction } from './GameStateActions';
 import { PeerRoom } from './PeerRoom';
-
-const trackers = [
-  'ws://tracker.files.fm:7072',
-  'wss://tracker.files.fm:7073',
-  // 'ws://tracker.btsync.cf:233',
-  // 'ws://tracker.btsync.cf:2710',
-  // 'ws://tracker.btsync.cf:6969',
-  // 'ws://hub.bugout.link',
-  // 'wss://hub.bugout.link',
-  // 'ws://tracker.lab.vvc.niif.hu',
-  // 'wss://tracker.lab.vvc.niif.hu',
-]
 
 interface Message {
   body: string,
@@ -33,38 +20,38 @@ function App() {
 
   const {state, dispatch} = useContext(GameStateContext);
 
-  const b = useRef<PeerRoom | undefined>();
+  const peerRoom = useRef<PeerRoom | undefined>();
   const [messages, setMessages] = useState<Message[]>([]);
 
   const myAddressRef = useRef<string>(myAddress);
   const addressToNickname = useRef<Map<string, string>>(new Map<string, string>());
 
   const leaveLobby = () => {
-    if (b.current) {
-      b.current.destroy()
-      b.current = undefined;
+    if (peerRoom.current) {
+      peerRoom.current.destroy()
+      peerRoom.current = undefined;
     }
     setConnected(false);
   }
 
   const connectToLobby = () => {
-    b.current = new PeerRoom(nickname);
+    peerRoom.current = new PeerRoom(nickname);
 
     if (!nickname.startsWith('init')) {
-      setTimeout(() => b.current.connectToMember(lobbyKey), 3000);
+      setTimeout(() => peerRoom.current.connectToMember(lobbyKey), 3000);
     }
 
     setConnected(true);
     setMessages([]);
 
-    const addr = b.current.address();
+    const addr = peerRoom.current.address();
     setMyAddress(addr);
     myAddressRef.current = addr;
     dispatch({
       type: ActionKind.UpdatePlayer,
       payload: { address: addr },
     })
-    b.current.on("message", (address, { type, message }) => {
+    peerRoom.current.on("message", (address, { type, message }) => {
       switch (type) {
         case 'chat':
           setMessages((messages) => [...messages, { body: message, sender: addressToNickname.current.get(address)! }]);
@@ -111,16 +98,16 @@ function App() {
   };
 
   const sendMessage = () => {
-    if (b.current && message.trim().length > 0) {
-      b.current.send({ type: 'chat', message });
+    if (peerRoom.current && message.trim().length > 0) {
+      peerRoom.current.send({ type: 'chat', message });
       setMessage('');
     }
   }
 
   useEffect(() => {
     return () => {
-      if (b.current) {
-        b.current.destroy();
+      if (peerRoom.current) {
+        peerRoom.current.destroy();
       }
     }
   }, [])
@@ -148,7 +135,7 @@ function App() {
 
       <div className="row game-window">
         {connected && <div>
-            <GameCanvas bugout={b} myAddress={myAddressRef} addressToNickname={addressToNickname}></GameCanvas>
+            <GameCanvas peerRoom={peerRoom} myAddress={myAddressRef} addressToNickname={addressToNickname}></GameCanvas>
             <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera</div>
           </div>
         }
