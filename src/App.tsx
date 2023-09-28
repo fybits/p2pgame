@@ -51,7 +51,6 @@ function App() {
     b.current = new PeerRoom(nickname);
 
     if (!nickname.startsWith('init')) {
-      console.log(nickname, 'Connecting to', lobbyKey);
       setTimeout(() => b.current.connectToMember(lobbyKey), 3000);
     }
 
