@@ -34,11 +34,11 @@ function App() {
     setConnected(false);
   }
 
-  const connectToLobby = () => {
+  const connectToLobby = (isHosting: boolean) => {
     peerRoom.current = new PeerRoom(nickname);
 
-    if (!nickname.startsWith('init')) {
-      setTimeout(() => peerRoom.current.connectToMember(lobbyKey), 3000);
+    if (!isHosting) {
+      peerRoom.current.connectToMember(lobbyKey);
     }
 
     setConnected(true);
@@ -120,11 +120,16 @@ function App() {
             Nickname
             <input onChange={(e) => setNickname(e.target.value)} value={nickname}></input>
           </label>
+          <button disabled={nickname.trim().length === 0} onClick={() => connectToLobby(true)}>Host</button>
+          <br />
+          or join the game
+          <br />
+          <br />
           <label>
             Lobby Name
             <input onChange={(e) => setLobbyKey(e.target.value)} value={lobbyKey}></input>
           </label>
-          <button disabled={nickname.trim().length === 0 || lobbyKey.length === 0} onClick={connectToLobby}>Join</button>
+          <button disabled={nickname.trim().length === 0 || lobbyKey.length === 0} onClick={() => connectToLobby(false)}>Join</button>
         </div>
       ) :
         <div className="row">

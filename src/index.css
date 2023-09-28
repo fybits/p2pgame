@@ -24,6 +24,7 @@ code {
   margin: 0 auto;
   margin-top: 30vh;
   align-items: stretch;
+  text-align: center;
 }
 
 .chat {
@@ -48,6 +49,7 @@ code {
 
 label {
   margin-bottom: 4px;
+  text-align: left;
 }
 
 label>input {

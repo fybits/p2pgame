@@ -44,8 +44,10 @@ export class PeerRoom {
   }
 
   connectToMember(userId: string)  {
-    const dc = this.peer.connect(userId);
-    this.addDataConnectionEventHandlers(dc);
+    this.peer.once('open', () => {
+      const dc = this.peer.connect(userId);
+      this.addDataConnectionEventHandlers(dc);
+    })
   }
 
   destroy() {
