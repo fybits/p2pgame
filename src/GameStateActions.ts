@@ -7,6 +7,7 @@ export enum ActionKind {
   ShootBullet = 'ShootBullet',
   UpdateBullet = 'UpdateBullet',
   UpdateScoreBoard = 'UpdateScoreBoard',
+  RemovePlayer = 'RemovePlayer'
 }
 
 export type Action = {
@@ -15,7 +16,7 @@ export type Action = {
 }
 
 
-export const updateOtherPlayerAction = (address: Address, player: Entity): Action => { 
+export const updateOtherPlayerAction = (address: Address, player: Entity): Action => {
   return {
     type: ActionKind.UpdateOtherPlayer,
     payload: { address, player }

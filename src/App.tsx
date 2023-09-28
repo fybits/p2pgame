@@ -89,6 +89,12 @@ function App() {
         case 'announce':
           setMessages((messages) => [...messages, { body: "Connected!", sender: address }]);
           break;
+        case 'player-disconnected':
+          dispatch({
+            type: ActionKind.RemovePlayer,
+            payload: { address }
+          });
+          break;
       }
     });
 

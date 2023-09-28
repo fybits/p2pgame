@@ -51,6 +51,9 @@ const reducer: React.Reducer<State, Action> = (state, { type, payload }) => {
       }
       return { ...state, scoreBoard: {...scoreBoard, [payload.killer]: scoreBoard[payload.killer] + 1 } };
     }
+    case ActionKind.RemovePlayer:
+      delete state.otherPlayers[payload.address];
+      return { ...state, otherPlayers: { ...state.otherPlayers } };
   }
   return state;
 };
