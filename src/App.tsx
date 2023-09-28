@@ -52,7 +52,7 @@ function App() {
 
     if (!nickname.startsWith('init')) {
       console.log(nickname, 'Connecting to', lobbyKey);
-      b.current.connectToExisting(lobbyKey);
+      setTimeout(() => b.current.connectToMember(lobbyKey), 3000);
     }
 
     setConnected(true);

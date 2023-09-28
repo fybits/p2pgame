@@ -13,16 +13,19 @@ export class PeerRoom {
 
   constructor(private userId: string) {
     this.peer = new Peer(userId);
+    this.peer.on('open', (id) => console.log('local open', id))
     this.peer.on('connection', (member) => this.addDataConnectionEventHandlers(member))
   }
 
   private addDataConnectionEventHandlers(dc: DataConnection) {
+    console.log('addDataConnectionEventHandlers')
+
     dc.on('open', () => {
-      console.log('open')
+      console.log('open');
       this.members.push(dc);
-      dc.send({ type: 'members-list', data: this.members.map((m) => m.peer) });
+      dc.send({ type: 'members-list', message: this.members.map((m) => m.peer).filter(p => p !== dc.peer) });
       this.listeners.forEach((l) => l(dc.peer, { type: 'announce', message: dc.peer }));
-    })
+    });
 
     dc.on('close', () => {
       console.log('close')
@@ -31,22 +34,29 @@ export class PeerRoom {
 
     dc.on('data', (data: DataEventData) => {
       console.log('data')
-      if (data.type === 'members-list') {
-        data.message.forEach((peer) => {
-          if (this.members.some(m => m.peer === peer)) {
-            return
-          };
 
-          this.addDataConnectionEventHandlers(dc);
-          this.members.push(this.peer.connect(peer));
+      if (data.type === 'members-list') {
+        console.log('members-list', data);
+
+        data.message.forEach((peer) => {
+          if (!this.members.some(m => m.peer === peer)) {
+            this.connectToMember(peer)
+          };
         })
+
+        return
       }
+
+      this.listeners.forEach((l) => {
+        l(dc.peer, data);
+      })
     })
   }
 
-  connectToExisting(userId: string)  {
-    console.log('connectToExisting')
-    this.peer.connect(userId);
+  connectToMember(userId: string)  {
+    console.log('connectToMember')
+    const dc = this.peer.connect(userId);
+    this.addDataConnectionEventHandlers(dc);
   }
 
   destroy() {
@@ -59,7 +69,6 @@ export class PeerRoom {
   }
 
   on(event: 'message', listener: (address: string, data: DataEventData) => void) {
-    console.log('message')
     this.listeners.push(listener);
   }
 
