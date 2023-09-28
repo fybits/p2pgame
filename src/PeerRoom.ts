@@ -33,8 +33,6 @@ export class PeerRoom {
     });
 
     dc.on('data', (data: DataEventData) => {
-      console.log('data')
-
       if (data.type === 'members-list') {
         console.log('members-list', data);
 
@@ -72,8 +70,9 @@ export class PeerRoom {
     this.listeners.push(listener);
   }
 
-  send(...arg: any) {
+  send(arg: any) {
     console.log('send')
+    this.listeners.forEach(l => l(this.userId, arg))
     this.members.forEach(m => m.send(arg))
   }
 }
