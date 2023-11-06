@@ -145,7 +145,7 @@ function App() {
       <div className="row game-window">
         {connected && <div>
             <GameCanvas peerRoom={peerRoom} myAddress={myAddressRef}/>
-            <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera</div>
+            <div><kbd>A</kbd>/<kbd>D</kbd> - turn, <kbd>W</kbd>/<kbd>S</kbd> - move, <kbd>Tab</kbd> - switch camera, <kbd>F</kbd> - toggle fullscreen</div>
           </div>
         }
         {connected &&(
