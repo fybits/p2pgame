@@ -39,7 +39,8 @@ export class PeerRoom {
       if (data.type === 'members-list') {
         data.message.forEach((peer) => {
           if (!this.members.some(m => m.peer === peer)) {
-            this.connectToMember(peer);
+            const dc = this.peer.connect(peer);
+            this.addDataConnectionEventHandlers(dc);
           };
         })
         return;
@@ -53,7 +54,7 @@ export class PeerRoom {
     })
   }
 
-  connectToMember(userId: string)  {
+  connectToMember(userId: string) {
     this.peer.once('open', () => {
       const dc = this.peer.connect(userId);
       this.addDataConnectionEventHandlers(dc);
