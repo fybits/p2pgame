@@ -1,12 +1,17 @@
 import { Sprite, TilingSprite, useTick } from '@pixi/react';
 import { useState } from 'react';
 import { Vector } from './vector';
+import { Entity } from './types';
 
-function lerp(start, end, t) {
+function lerp(start: number, end: number, t: number) {
   return start * (1 - t) + end * t;
 }
 
-const EntityObject = ({ player }) => {
+type EntityProps = { 
+  player: Entity;
+}
+
+const EntityObject = ({ player } : EntityProps) => {
   const [interpolatedPos, setInterpolatedPos] = useState<Vector>(player.position);
   const [interpolatedRotation, setInterpolatedRotation] = useState<number>(player.rotation);
 

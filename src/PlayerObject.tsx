@@ -32,12 +32,6 @@ const PlayerObject = ({ peerRoom, keyboard, player, bullets, dispatch }: PlayerO
 
   useTick(dt => {
     const d = handleInput();
-    i++;
-    if (i % 10 === 0) {
-      if (peerRoom.current) {
-        peerRoom.current.send({ type: 'player_state', message: player });
-      }
-    }
     const rotation = (player.rotation + d.x * dt * 2) % 360;
     const newPos = {
       x: player.position.x + player.velocity.x * dt / 1000,
@@ -54,6 +48,12 @@ const PlayerObject = ({ peerRoom, keyboard, player, bullets, dispatch }: PlayerO
         rotation: rotation,
       }
     });
+    i++;
+    if (i % 10 === 0) {
+      if (peerRoom.current) {
+        peerRoom.current.send({ type: 'player_state', message: {...player, position: {x: newPos.x + player.velocity.x*dt /100, y: newPos.y + player.velocity.y*dt/100}} });
+      }
+    }
     for (const b of bullets) {
       if (!b.address.startsWith(player.address) && !b.deleted){
         if (distance(player.position, b.position) < 40) {
